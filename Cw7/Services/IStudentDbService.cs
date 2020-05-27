@@ -8,6 +8,7 @@ namespace Cw7.DAL
     {
         public IEnumerable<Student> GetStudents(string orderBy);
         public Student GetStudent(string indexNumber);
+        public Student GetStudent(string indexNumber, string password);
         public int CreateStudent(Student student);
         public int UpdateStudent(string indexNumber, Student student);
         public int DeleteStudent(string indexNumber);

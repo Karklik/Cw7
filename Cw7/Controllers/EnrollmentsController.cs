@@ -2,6 +2,7 @@
 using Cw7.DTOs.Requests;
 using Cw7.DTOs.Responses;
 using Cw7.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -35,6 +36,7 @@ namespace Cw7.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "employee")]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
             try
@@ -68,6 +70,7 @@ namespace Cw7.Controllers
         }
 
         [HttpPost("promotions")]
+        [Authorize(Roles = "employee")]
         public IActionResult PromoteStudents(PromoteStudentsRequest request)
         {
             var studies = _dbService.GetStudies(request.Studies);

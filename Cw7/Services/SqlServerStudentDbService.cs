@@ -242,6 +242,33 @@ namespace Cw7.DAL
             return null;
         }
 
+        public Student GetStudent(string indexNumber, string password)
+        {
+            using var connection = SqlConnection;
+            using var command = new SqlCommand
+            {
+                Connection = connection,
+                CommandText = "SELECT * FROM Student WHERE IndexNumber = @indexNumber AND Password = @password"
+            };
+            command.Parameters.AddWithValue("indexNumber", indexNumber);
+            command.Parameters.AddWithValue("password", password);
+            connection.Open();
+            using var dataReader = command.ExecuteReader();
+            if (dataReader.Read())
+            {
+                var student = new Student
+                {
+                    IndexNumber = dataReader["IndexNumber"].ToString(),
+                    FirstName = dataReader["FirstName"].ToString(),
+                    LastName = dataReader["LastName"].ToString(),
+                    BirthDate = dataReader["BirthDate"].ToString(),
+                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"])
+                };
+                return student;
+            }
+            return null;
+        }
+
         public Enrollment GetStudentEnrollment(string indexNumber)
         {
             using var connection = SqlConnection;

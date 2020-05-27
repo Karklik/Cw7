@@ -1,6 +1,15 @@
 ﻿using Cw7.DAL;
+using Cw7.DTOs.Requests;
+using Cw7.DTOs.Responses;
 using Cw7.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Cw7.Controllers
 {
@@ -9,10 +18,48 @@ namespace Cw7.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly IStudentDbService _dbService;
+        private readonly IConfiguration _configuration;
 
-        public StudentsController(IStudentDbService dbService)
+        public StudentsController(IStudentDbService dbService, IConfiguration configuration)
         {
             _dbService = dbService;
+            _configuration = configuration;
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public IActionResult Login(LoginRequest request)
+        {
+            var student = _dbService.GetStudent(request.Username, request.Password);
+            if (student == null)
+                return NotFound(new ErrorResponse
+                {
+                    Message = "Username or password dosen't exists or is incorrect"
+                });
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, student.IndexNumber),
+                new Claim(ClaimTypes.Name, student.FirstName + "_" + student.LastName),
+                new Claim(ClaimTypes.Role, "student")
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["SecretKey"]));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken
+            (
+                issuer: "s16556",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: credentials
+            );
+
+            return Ok(new LoginResponse
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = Guid.NewGuid().ToString()
+            });
         }
 
         [HttpGet]
@@ -61,7 +108,7 @@ namespace Cw7.Controllers
         [HttpDelete("{indexNumber}")]
         public IActionResult DeleteStudent(string indexNumber)
         {
-            if(_dbService.DeleteStudent(indexNumber) > 0)
+            if (_dbService.DeleteStudent(indexNumber) > 0)
                 return Ok("Usuwanie ukończone");
             else
                 return NotFound("Nie znaleziono studneta");
