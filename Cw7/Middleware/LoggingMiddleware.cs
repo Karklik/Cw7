@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,16 +28,13 @@ namespace Cw7.Middleware
                 using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 1024, true);
                 body = await reader.ReadToEndAsync();
                 context.Request.Body.Position = 0;
-                var lines = new List<string>
-                {
-                    "====================================================================",
-                    "On: " + DateTime.Now.ToString(),
-                    "Method: " + method,
-                    "Path: " + path,
-                    "QueryString: " + queryString,
-                    "Body:\n" + body
-                };
-                await File.AppendAllLinesAsync("requestsLog.txt ", lines, Encoding.UTF8);
+                using var writer = new StreamWriter("requestsLog.txt", true);
+                writer.WriteLine("====================================================================");
+                writer.WriteLine("On: " + DateTime.Now.ToString());
+                writer.WriteLine("Method: " + method);
+                writer.WriteLine("Path: " + path);
+                writer.WriteLine("QueryString: " + queryString);
+                writer.WriteLine("Body:\n" + body);
             }
 
             await _next(context);
