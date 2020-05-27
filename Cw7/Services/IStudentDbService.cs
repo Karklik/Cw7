@@ -9,9 +9,12 @@ namespace Cw7.DAL
         public IEnumerable<Student> GetStudents(string orderBy);
         public Student GetStudent(string indexNumber);
         public Student GetStudent(string indexNumber, string password);
+        public Student GetRefreshTokenOwner(string refreshToken);
         public int CreateStudent(Student student);
+        public int CreateRefreshToken(RefreshToken refreshToken);
         public int UpdateStudent(string indexNumber, Student student);
         public int DeleteStudent(string indexNumber);
+        public int DeleteRefreshToken(string refreshToken);
         public Enrollment GetStudentEnrollment(string indexNumber);
         public Studies GetStudies(string studiesName);
         public Enrollment CreateStudentEnrollment(

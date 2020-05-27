@@ -12,6 +12,22 @@ namespace Cw7.DAL
         private readonly string connectionString = "Data Source=db-mssql;Initial Catalog=s16556;Integrated Security=True";
         private SqlConnection SqlConnection => new SqlConnection(connectionString);
 
+        public int CreateRefreshToken(RefreshToken refreshToken)
+        {
+            using var connection = SqlConnection;
+            using var command = new SqlCommand
+            {
+                Connection = connection,
+                CommandText = "INSERT INTO RefreshToken " +
+                "VALUES(@id, @indexNumber)"
+            };
+
+            command.Parameters.AddWithValue("id", refreshToken.Id);
+            command.Parameters.AddWithValue("indexNumber", refreshToken.IndexNumber);
+            connection.Open();
+            return command.ExecuteNonQuery();
+        }
+
         public int CreateStudent(Student student)
         {
             using var connection = SqlConnection;
@@ -152,6 +168,19 @@ namespace Cw7.DAL
             return null;
         }
 
+        public int DeleteRefreshToken(string refreshToken)
+        {
+            using var connection = SqlConnection;
+            using var command = new SqlCommand
+            {
+                Connection = connection,
+                CommandText = "DELETE FROM RefreshToken WHERE Id = @refreshToken"
+            };
+            command.Parameters.AddWithValue("refreshToken", refreshToken);
+            connection.Open();
+            return command.ExecuteNonQuery();
+        }
+
         public int DeleteStudent(string indexNumber)
         {
             using var connection = SqlConnection;
@@ -212,6 +241,29 @@ namespace Cw7.DAL
                     IdStudy = IntegerType.FromObject(dataReader["IdStudy"])
                 };
                 return enrollment;
+            }
+            return null;
+        }
+
+        public Student GetRefreshTokenOwner(string refreshToken)
+        {
+            using var connection = SqlConnection;
+            using var command = new SqlCommand
+            {
+                Connection = connection,
+                CommandText = "SELECT * FROM RefreshToken WHERE Id = @refreshToken"
+            };
+            command.Parameters.AddWithValue("refreshToken", refreshToken);
+            connection.Open();
+            using var dataReader = command.ExecuteReader();
+            if (dataReader.Read())
+            {
+                var refreshTokenModel = new RefreshToken
+                {
+                    Id = dataReader["Id"].ToString(),
+                    IndexNumber = dataReader["IndexNumber"].ToString()
+                };
+                return GetStudent(refreshTokenModel.IndexNumber);
             }
             return null;
         }
