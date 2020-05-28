@@ -3,6 +3,7 @@ using Cw7.DTOs.Requests;
 using Cw7.DTOs.Responses;
 using Cw7.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -30,8 +31,29 @@ namespace Cw7.Controllers
         [AllowAnonymous]
         public IActionResult Login(LoginRequest request)
         {
-            var student = _dbService.GetStudent(request.Username, request.Password);
+            var student = _dbService.GetStudent(request.Username);
             if (student == null)
+                return NotFound(new ErrorResponse
+                {
+                    Message = "Username or password dosen't exists or is incorrect"
+                });
+
+            static string CreateHash(string password, string salt)
+            {
+                return Convert.ToBase64String(
+                    KeyDerivation.Pbkdf2(
+                        password: password,
+                        salt: Encoding.UTF8.GetBytes(salt),
+                        prf: KeyDerivationPrf.HMACSHA512,
+                        iterationCount: 10000,
+                        numBytesRequested: 256 / 8
+                    )
+                );
+            }
+
+            Console.WriteLine(CreateHash(request.Password, student.Salt));
+
+            if (CreateHash(request.Password, student.Salt) != student.Password)
                 return NotFound(new ErrorResponse
                 {
                     Message = "Username or password dosen't exists or is incorrect"

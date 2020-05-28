@@ -287,7 +287,9 @@ namespace Cw7.DAL
                     FirstName = dataReader["FirstName"].ToString(),
                     LastName = dataReader["LastName"].ToString(),
                     BirthDate = dataReader["BirthDate"].ToString(),
-                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"])
+                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"]),
+                    Password = dataReader["Password"].ToString(),
+                    Salt = dataReader["Salt"].ToString()
                 };
                 return student;
             }
@@ -314,7 +316,9 @@ namespace Cw7.DAL
                     FirstName = dataReader["FirstName"].ToString(),
                     LastName = dataReader["LastName"].ToString(),
                     BirthDate = dataReader["BirthDate"].ToString(),
-                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"])
+                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"]),
+                    Password = dataReader["Password"].ToString(),
+                    Salt = dataReader["Salt"].ToString()
                 };
                 return student;
             }
@@ -371,7 +375,9 @@ namespace Cw7.DAL
                     FirstName = dataReader["FirstName"].ToString(),
                     LastName = dataReader["LastName"].ToString(),
                     BirthDate = dataReader["BirthDate"].ToString(),
-                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"])
+                    IdEnrollment = IntegerType.FromObject(dataReader["IdEnrollment"]),
+                    Password = dataReader["Password"].ToString(),
+                    Salt = dataReader["Salt"].ToString()
                 };
                 students.Add(student);
             }
